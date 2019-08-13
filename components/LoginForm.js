@@ -4,48 +4,49 @@ import {
     Text,
     TextInput,
     View,
-    Button
+    Button,
+    TouchableOpacity
 } from 'react-native';
 import { login } from './LoginFunction';
+
+
 
 export default class Login extends Component {
     constructor(){
         super()
         this.state = {
-            username: '',
-            password: '',
-            isLoggingIn: false,
-            message: ''
+            email: '',
+            password: ''
         }
 
-        this.onChange=this.onChange.bind(this)
-        this.onSubmit = this.onSubmit.bind(this)
-    }
-
-    onChange(e){
-        this.setState({[e.target.name]: e.target.value})
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     onSubmit(e){
         e.preventDefault()
 
+        // const user = {
+        //     email: 'kazkas@gmail.com',
+        //     password: 'cdm2G7DH',
+        // };
+
         const user = {
-            username: this.state.username,
+            email: this.state.email,
             password: this.state.password,
         };
 
-        login(user).then(res => {
-            if (res){
-                this.props.history.push('/profile')
+        login(user).then(res=>{
+            console.log(res.data)
+            if(res.data.message){
+                console.log(res.data.message)
+            }else{
+                this.props.onLoginPress()
             }
         })
-
-        this.setState({isLoggingIn: true, message:''});
     }
 
 
     render() {
-
         return (
             <ScrollView style={{ padding: 20 }}>
                 <Text
@@ -53,16 +54,16 @@ export default class Login extends Component {
                     Login
             </Text>
                 <TextInput 
-                placeholder='Username'
-                name="username"
-                value={this.state.username}
-                onChange={this.onChange}
+                placeholder='email'
+                name="email"
+                value={this.state.email}
+                onChangeText={(email) => this.setState({email})}
                 />
                 <TextInput 
                 placeholder='Password' 
                 name="password"
                 value={this.state.password}
-                onChange={this.onChange}
+                onChangeText={(password) => this.setState({password})}
                 />
                 <View style={{ margin: 7 }} />
                 {!!this.state.message && (
@@ -71,10 +72,9 @@ export default class Login extends Component {
                         {this.state.message}
                     </Text>
                 )}
-                <Button
-                    disabled={this.state.isLoggingIn || !this.state.username || !this.state.password}
-                    onChange={this.onChange}
-                    title="Submit" />
+                <TouchableOpacity onPress={this.onSubmit}>
+                <Text>SUBMIT</Text>
+                </TouchableOpacity>     
             </ScrollView>
         )
     }
