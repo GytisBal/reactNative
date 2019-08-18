@@ -1,20 +1,18 @@
 import React, {Component} from 'react';
+import {login} from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faParking } from '@fortawesome/free-solid-svg-icons'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Config from 'react-native-config';
 
 import {
-    ScrollView,
     Text,
     TextInput,
     View,
-    Button,
     TouchableOpacity,
     StyleSheet,
     Dimensions,
 } from 'react-native';
-
-import {login} from './LoginFunction';
-
 
 export default class Login extends Component {
     constructor() {
@@ -22,6 +20,7 @@ export default class Login extends Component {
         this.state = {
             email: '',
             password: '',
+            message: '',
         };
 
         this.onSubmit = this.onSubmit.bind(this);
@@ -30,19 +29,28 @@ export default class Login extends Component {
     onSubmit(e) {
         e.preventDefault();
 
-        const user = {
-            email: 'test2@gmail.com	',
-            password: 'jN9Rlz1W',
-        };
+        let user;
 
-        // const user = {
-        //     email: this.state.email,
-        //     password: this.state.password,
-        // };
+        if (Config.IS_PRODUCTION === true){
+
+            user = {
+                email: this.state.email,
+                password: this.state.password,
+            };
+
+        }   else{
+
+           user = {
+                email: 'adadadada@gmail.com	',
+                password: 'LQqDlJNC',
+            };
+        }
+
 
         login(user).then(res => {
             console.log(res.data);
             if (res.data.message) {
+                this.setState({message: res.data.message})
                 console.log(res.data.message);
             } else {
                 this.props.onLoginPress();
@@ -53,59 +61,65 @@ export default class Login extends Component {
 
     render() {
         return (
-            <ScrollView style={styles.wrapper}>
+
+            <KeyboardAwareScrollView
+                style={{ backgroundColor: 'white' }}
+                resetScrollToCoords={{ x: 0, y: 0 }}
+                scrollEnabled={false}
+            >
                 <View style={styles.containerTop}>
-                    <View style={styles.circle}>
-                        <FontAwesomeIcon style={styles.parking} size={50} icon={ faParking } />
-                    </View>
+                <View style={styles.circle}>
+                <FontAwesomeIcon style={styles.parking} size={50} icon={ faParking } />
                 </View>
-                <View style={styles.containerBottom}>
+                </View>
+                <View
+                    style={styles.containerBottom}
+                >
                 <Text
-                    style={{fontSize: 27}}>
+                    style={styles.loginHeading}>
                     Login
                 </Text>
+                    <Text
+                        style={styles.message}>
+                        {this.state.message}
+                    </Text>
                 <TextInput
-                    placeholder='email'
+                    style={styles.emailStyle}
+                    placeholder='Email'
+                    placeholderTextColor="blue"
                     name="email"
                     value={this.state.email}
                     onChangeText={(email) => this.setState({email})}
                 />
                 <TextInput
+                    style={styles.passwordStyle}
                     placeholder='Password'
+                    placeholderTextColor="blue"
                     name="password"
                     value={this.state.password}
                     onChangeText={(password) => this.setState({password})}
                 />
+                <TouchableOpacity
+                    style={styles.loginButton}
+                    onPress={this.onSubmit}>
+                    <Text style={styles.loginButtonText}>Sign in</Text>
+                </TouchableOpacity>
                 </View>
 
-                {/*/!*<View style={{margin: 7}}/>*!/*/}
-                {/*/!*{!!this.state.message && (*!/*/}
-                {/*/!*    <Text*!/*/}
-                {/*/!*        style={{fontSize: 14, color: 'red', padding: 5}}>*!/*/}
-                {/*/!*        {this.state.message}*!/*/}
-                {/*/!*    </Text>*!/*/}
-                {/*/!*)}*!/*/}
+            </KeyboardAwareScrollView>
 
-                <TouchableOpacity onPress={this.onSubmit}>
-                    <Text>SUBMIT</Text>
-                </TouchableOpacity>
-            </ScrollView>
         );
     }
 }
-{/*<LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.linearGradient}>*/}
-{/*    <Text>Hello</Text>*/}
-{/*</LinearGradient>*/}
 
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
 
 const styles = StyleSheet.create({
     Wrapper: {
+        position: "relative",
         height: height,
         width: width,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     containerTop: {
         backgroundColor: 'blue',
@@ -125,17 +139,70 @@ const styles = StyleSheet.create({
     parking: {
         color: 'blue',
     },
+
     containerBottom: {
-        position: "absolute",
-        top: 0,
-        left: width / 2,
-        bottom: 0,
-        right: 0,
-        justifyContent: 'center',
+        flex: 1,
+        position: "relative",
+        top: "-5%",
+        zIndex: 100,
         alignItems: 'center',
-        shadowColor: '#000',
-        height: height / 2,
-        width: width / 2,
-        backgroundColor: 'grey',
+        alignSelf: 'center',
+        height: height / 2.5,
+        width: width / 1.2,
+        borderRadius: 10,
+        backgroundColor: 'white',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 5,
+        },
+        shadowOpacity: 0.36,
+        shadowRadius: 6.68,
+
+        elevation: 11,
+    },
+    loginHeading: {
+        fontSize: 30,
+        textTransform: "uppercase",
+    },
+    message:{
+        position: "absolute",
+        top: 38,
+      color: "red",
+      fontSize: 14,
+    },
+    emailStyle:{
+        fontSize:20,
+        marginTop: 20,
+        backgroundColor: "white",
+        borderBottomWidth: 1,
+        borderBottomColor: "blue",
+        width: "90%",
+
+    },
+    passwordStyle:{
+        fontSize:20,
+        borderBottomWidth: 1,
+        borderBottomColor: "blue",
+        marginTop: 20,
+        width: "90%",
+    },
+    loginButton:{
+        height: 50,
+        width: 200,
+        top: 30,
+        backgroundColor: "blue",
+        borderRadius: 30,
+        justifyContent: 'center',
+    },
+    loginButtonText:{
+        fontSize:20,
+        color: "white",
+        textTransform: "uppercase",
+        alignSelf: 'center',
+
     },
 });
+
+
+
