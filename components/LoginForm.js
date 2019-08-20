@@ -25,10 +25,6 @@ export default class Login extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    componentDidMount(){
-       console.log(this.getToken())
-    }
-
     storeToken = async (accessToken) => {
         try {
             await AsyncStorage.setItem(access_token, accessToken);
@@ -47,6 +43,7 @@ export default class Login extends Component {
            console.log(error)
         }
     };
+
     removeToken = async () => {
         try {
             await AsyncStorage.removeItem(access_token);
@@ -67,21 +64,23 @@ export default class Login extends Component {
             };
         }   else{
            user = {
-                email: 'petras@gmail.com',
-                password: 'l23Kdbxz',
+                email: 'vytis@gmail.com',
+                password: 'Jy2tgYIV',
             };
         }
 
-        login(user).then(res => {
-            console.log(res.data.accessToken);
+        login(user)
+            .then(res => {
+
             if (res.data.message) {
-                this.removeToken()
                 this.setState({message: res.data.message})
             } else {
                 this.storeToken(res.data.accessToken)
                 this.props.onLoginPress();
             }
-        });
+        }).catch(res=>{
+            console.log(res)
+        })
     }
 
 

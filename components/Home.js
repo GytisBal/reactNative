@@ -22,18 +22,24 @@ export default class Home extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.getToken()
-        status()
-            .then(res=>{
-              this.setState({status: res.data})
-            })
-            .catch(res=>{
-                console.log(res)
-            })
+            .then(token => {
+            status(token)
+                .then(res => {
+                    this.setState({status: res.data})
+                })
+                .catch(res => {
+                    if (res) {
+                        console.log(res)
+                        this.removeToken()
+                        this.props.onLogoutPress()
+                    }
+                })
+        })
     }
 
-    getToken= async () => {
+    getToken = async () => {
         try {
             const value = await AsyncStorage.getItem(access_token);
             if (value !== null) {
@@ -44,20 +50,38 @@ export default class Home extends Component {
         }
     };
 
+    removeToken = async () => {
+        try {
+            await AsyncStorage.removeItem(access_token);
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+
     onSubmit(e) {
         e.preventDefault();
 
         this.setState({onAction: true})
 
-        toggle().then(res => {
-            this.setState({onAction: false})
-            if(res.data === "on"){
-                this.setState({status: true})
-            }else{
-                this.setState({status: false})
-            }
-        }).catch(function (error) {
-            console.log(error);
+        this.getToken()
+            .then(token => {
+            toggle(token)
+                .then(res => {
+                this.setState({onAction: false})
+
+                if (res.data === "on") {
+                    this.setState({status: true})
+                } else {
+                    this.setState({status: false})
+                }
+            }).catch(res=>{
+                if (res) {
+                    console.log(res)
+                    this.removeToken()
+                    this.props.onLogoutPress()
+                }
+            });
         });
     }
 
@@ -67,19 +91,19 @@ export default class Home extends Component {
         let tapText;
         let statusText;
 
-        if(this.state.status === true){
+        if (this.state.status === true) {
             color = '#b0c24a'
             buttonText = 'close'
             tapText = 'Tap To Close'
-        }else{
+        } else {
             color = '#b70b0b'
             buttonText = 'open'
             tapText = 'Tap To Open'
         }
 
-        if(this.state.onAction === true && this.state.status === true){
+        if (this.state.onAction === true && this.state.status === true) {
             statusText = "Closing..."
-        }else if(this.state.onAction === true && this.state.status === false){
+        } else if (this.state.onAction === true && this.state.status === false) {
             statusText = "Opening..."
         }
 
@@ -94,7 +118,7 @@ export default class Home extends Component {
                 <TouchableOpacity
                     onPress={this.onSubmit}
                     disabled={this.state.onAction}
-                    style={[{ backgroundColor: color }, styles.mainButton]}
+                    style={[{backgroundColor: color}, styles.mainButton]}
                 >
                     <Text style={styles.buttonText}> {buttonText} </Text>
                 </TouchableOpacity>
@@ -104,6 +128,7 @@ export default class Home extends Component {
         )
     }
 }
+
 
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
