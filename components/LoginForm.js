@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import {login} from './api';
+import {login, status} from './api';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faParking } from '@fortawesome/free-solid-svg-icons'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import Config from 'react-native-config';
-
+import AsyncStorage from '@react-native-community/async-storage';
 import {
     Text,
     TextInput,
@@ -13,7 +13,7 @@ import {
     StyleSheet,
     Dimensions,
 } from 'react-native';
-
+const access_token = "";
 export default class Login extends Component {
     constructor() {
         super();
@@ -22,37 +22,63 @@ export default class Login extends Component {
             password: '',
             message: '',
         };
-
         this.onSubmit = this.onSubmit.bind(this);
     }
+
+    componentDidMount(){
+       console.log(this.getToken())
+    }
+
+    storeToken = async (accessToken) => {
+        try {
+            await AsyncStorage.setItem(access_token, accessToken);
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
+    getToken= async () => {
+        try {
+            const value = await AsyncStorage.getItem(access_token);
+            if (value !== null) {
+                return value
+            }
+        } catch (error) {
+           console.log(error)
+        }
+    };
+    removeToken = async () => {
+        try {
+            await AsyncStorage.removeItem(access_token);
+            this.getToken();
+        } catch (error) {
+            console.log(error)
+        }
+    };
 
     onSubmit(e) {
         e.preventDefault();
 
         let user;
-
         if (Config.IS_PRODUCTION === true){
-
             user = {
                 email: this.state.email,
                 password: this.state.password,
             };
-
         }   else{
-
            user = {
-                email: 'adadadada@gmail.com	',
-                password: 'LQqDlJNC',
+                email: 'petras@gmail.com',
+                password: 'l23Kdbxz',
             };
         }
 
-
         login(user).then(res => {
-            console.log(res.data);
+            console.log(res.data.accessToken);
             if (res.data.message) {
+                this.removeToken()
                 this.setState({message: res.data.message})
-                console.log(res.data.message);
             } else {
+                this.storeToken(res.data.accessToken)
                 this.props.onLoginPress();
             }
         });
@@ -188,9 +214,10 @@ const styles = StyleSheet.create({
         width: "90%",
     },
     loginButton:{
+        position: "absolute",
         height: 50,
         width: 200,
-        top: 30,
+        top: "90%",
         backgroundColor: "blue",
         borderRadius: 30,
         justifyContent: 'center',
