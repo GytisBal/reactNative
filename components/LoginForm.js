@@ -27,31 +27,12 @@ export default class Login extends Component {
 
     storeToken = async (accessToken) => {
         try {
-            await AsyncStorage.setItem(access_token, accessToken);
+                await AsyncStorage.setItem(access_token, accessToken);
         } catch (error) {
             console.log(error)
         }
     };
 
-    getToken= async () => {
-        try {
-            const value = await AsyncStorage.getItem(access_token);
-            if (value !== null) {
-                return value
-            }
-        } catch (error) {
-           console.log(error)
-        }
-    };
-
-    removeToken = async () => {
-        try {
-            await AsyncStorage.removeItem(access_token);
-            this.getToken();
-        } catch (error) {
-            console.log(error)
-        }
-    };
 
     onSubmit(e) {
         e.preventDefault();
@@ -64,14 +45,13 @@ export default class Login extends Component {
             };
         }   else{
            user = {
-                email: 'vytis@gmail.com',
-                password: 'Jy2tgYIV',
+                email: 'petras@gmail.com',
+                password: 'jKAFIN4V',
             };
         }
 
         login(user)
             .then(res => {
-
             if (res.data.message) {
                 this.setState({message: res.data.message})
             } else {

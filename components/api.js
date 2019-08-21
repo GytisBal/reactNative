@@ -18,7 +18,7 @@ function getInitializedApi(token) {
 
 // Helper functions
 function getBaseUrl() {
-    return Config.API_HOST_DEVICE
+    return Config.API_HOST_DEVICE_WORK
 }
 
 // function getRequest(url) {
