@@ -18,6 +18,7 @@ export default class Home extends Component {
         this.state = {
             status: false,
             onAction: false,
+            loading: true,
         };
 
         this.toggleButton = this.toggleButton.bind(this);
@@ -69,6 +70,7 @@ export default class Home extends Component {
 
         this.getToken()
             .then(token => {
+                console.log(token)
             toggle(token)
                 .then(res => {
                 this.setState({onAction: false})
@@ -123,9 +125,10 @@ export default class Home extends Component {
                     <Text style={styles.logoutText}> Logout </Text>
 
                 </TouchableOpacity>
-                <Text style={styles.header}> Lempa </Text>
+
                 <ScrollView onScroll={this.handleScroll}>
                 <View style={styles.mainButtonContainer}>
+                    <Text style={styles.header}> Lempa </Text>
                 <TouchableOpacity
                     onPress={this.toggleButton}
                     disabled={this.state.onAction}
@@ -137,10 +140,11 @@ export default class Home extends Component {
                 <Text style={styles.statusText}> {statusText} </Text>
                 </View>
                 <View  style={styles.mainButtonContainer}>
+                    <Text style={styles.header}> Kitas</Text>
                     <TouchableOpacity
                         onPress={this.toggleButton}
-                        disabled={this.state.onAction}
-                        style={[{backgroundColor: color}, styles.mainButton]}
+                        disabled={true}
+                        style={[{backgroundColor: "grey"}, styles.mainButton]}
                     >
                         <Text style={styles.buttonText}> {buttonText} </Text>
                     </TouchableOpacity>
@@ -173,17 +177,19 @@ const styles = StyleSheet.create({
         color: "white",
         fontSize: 25,
     },
-    header:{
-        fontSize: 30,
-        color: "black",
-        alignSelf: 'center',
-        textTransform: 'uppercase',
-        backgroundColor: 'transparent',
-    },
+
     mainButtonContainer:{
         flex: 1,
         height: height,
         width: width,
+    },
+    header:{
+        fontSize: 30,
+        top: "15%",
+        color: "black",
+        alignSelf: 'center',
+        textTransform: 'uppercase',
+        backgroundColor: 'transparent',
     },
     mainButton: {
         position: "relative",
