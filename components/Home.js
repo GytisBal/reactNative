@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
 import {toggle, status} from './api';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faParking} from '@fortawesome/free-solid-svg-icons';
+import AsyncStorage from '@react-native-community/async-storage';
 import {
     Text,
     View,
@@ -8,12 +11,8 @@ import {
     Dimensions,
     ScrollView,
 } from 'react-native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faParking } from '@fortawesome/free-solid-svg-icons'
-import AsyncStorage from '@react-native-community/async-storage';
 
 const access_token = '';
-
 export default class Home extends Component {
     constructor() {
         super();
@@ -24,10 +23,11 @@ export default class Home extends Component {
         };
 
         this.toggleButton = this.toggleButton.bind(this);
+        this.logout = this.logout.bind(this);
     }
 
     componentDidMount() {
-        this.setState({isLoading: true})
+        this.setState({isLoading: true});
         this.getToken()
             .then(token => {
                 status(token)
@@ -43,7 +43,9 @@ export default class Home extends Component {
                             this.props.onLogoutPress();
                         }
                     });
-                setTimeout(() => {this.setState({isLoading: false})}, 3000)
+                setTimeout(() => {
+                    this.setState({isLoading: false});
+                }, 3000);
             });
     }
 
@@ -75,12 +77,9 @@ export default class Home extends Component {
         }
     };
 
-
     toggleButton(e) {
         e.preventDefault();
-
         this.setState({onAction: true});
-
         this.getToken()
             .then(token => {
                 toggle(token)
@@ -99,10 +98,17 @@ export default class Home extends Component {
                     if (res) {
                         console.log(res);
                         this.removeToken();
-                        this.props.onLogoutPress();
+                        this.props.onLogoutPress;
                     }
                 });
             });
+    }
+
+    logout(e) {
+        e.preventDefault();
+        console.log('labas');
+        this.props.onLogoutPress();
+        this.removeToken();
     }
 
     render() {
@@ -124,16 +130,15 @@ export default class Home extends Component {
         if (this.state.onAction === true && this.state.status === true) {
             statusText = 'Closing...';
         } else if (this.state.onAction === true && this.state.status === false) {
-            console.log('labas');
             statusText = 'Opening...';
         }
 
         if (this.state.isLoading === true) {
             return (
                 <View style={styles.loadingPage}>
-                <View style={styles.circle}>
-                    <FontAwesomeIcon style={styles.parking} size={50} icon={ faParking } />
-                </View>
+                    <View style={styles.circle}>
+                        <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
+                    </View>
                     <Text style={styles.loadingHeader}> Loading... </Text>
                 </View>
             );
@@ -141,11 +146,10 @@ export default class Home extends Component {
             return (
                 <View style={styles.wrapper}>
                     <TouchableOpacity
-                        onPress={this.props.onLogoutPress}
+                        onPress={this.logout}
                         style={styles.logoutButton}
                     >
                         <Text style={styles.logoutText}> Logout </Text>
-
                     </TouchableOpacity>
 
                     <ScrollView onScroll={this.handleScroll}>
@@ -180,14 +184,11 @@ export default class Home extends Component {
     }
 }
 
-
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
-
-
 const styles = StyleSheet.create({
-    loadingPage:{
-        top: "30%",
+    loadingPage: {
+        top: '30%',
     },
     circle: {
         backgroundColor: 'white',
@@ -259,9 +260,7 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.36,
         shadowRadius: 6.68,
-
         elevation: 11,
-
     },
     buttonText: {
         fontSize: 40,
@@ -285,5 +284,4 @@ const styles = StyleSheet.create({
         color: 'black',
         alignSelf: 'center',
     },
-
 });

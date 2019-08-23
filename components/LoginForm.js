@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {login, status} from './api';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faParking } from '@fortawesome/free-solid-svg-icons'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import {login} from './api';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {faParking} from '@fortawesome/free-solid-svg-icons';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Config from 'react-native-config';
 import AsyncStorage from '@react-native-community/async-storage';
 import {
@@ -13,7 +13,8 @@ import {
     StyleSheet,
     Dimensions,
 } from 'react-native';
-const access_token = "";
+
+const access_token = '';
 export default class Login extends Component {
     constructor() {
         super();
@@ -27,24 +28,23 @@ export default class Login extends Component {
 
     storeToken = async (accessToken) => {
         try {
-                await AsyncStorage.setItem(access_token, accessToken);
+            await AsyncStorage.setItem(access_token, accessToken);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     };
-
 
     onSubmit(e) {
         e.preventDefault();
 
         let user;
-        if (Config.IS_PRODUCTION === true){
+        if (Config.IS_PRODUCTION === true) {
             user = {
                 email: this.state.email,
                 password: this.state.password,
             };
-        }   else{
-           user = {
+        } else {
+            user = {
                 email: 'petras@gmail.com',
                 password: 'kYq9p1kY',
             };
@@ -52,67 +52,64 @@ export default class Login extends Component {
 
         login(user)
             .then(res => {
-            if (res.data.message) {
-                this.setState({message: res.data.message})
-            } else {
-                this.storeToken(res.data.accessToken)
-                this.props.onLoginPress();
-            }
-        }).catch(res=>{
-            console.log(res)
-        })
+                if (res.data.message) {
+                    this.setState({message: res.data.message});
+                } else {
+                    this.storeToken(res.data.accessToken);
+                    this.props.onLoginPress();
+                }
+            }).catch(res => {
+            console.log(res);
+        });
     }
-
 
     render() {
         return (
-
             <KeyboardAwareScrollView
-                style={{ backgroundColor: 'white' }}
-                resetScrollToCoords={{ x: 0, y: 0 }}
+                style={{backgroundColor: 'white'}}
+                resetScrollToCoords={{x: 0, y: 0}}
                 scrollEnabled={false}
             >
                 <View style={styles.containerTop}>
-                <View style={styles.circle}>
-                <FontAwesomeIcon style={styles.parking} size={50} icon={ faParking } />
-                </View>
+                    <View style={styles.circle}>
+                        <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
+                    </View>
                 </View>
                 <View
                     style={styles.containerBottom}
                 >
-                <Text
-                    style={styles.loginHeading}>
-                    Login
-                </Text>
+                    <Text
+                        style={styles.loginHeading}>
+                        Login
+                    </Text>
                     <Text
                         style={styles.message}>
                         {this.state.message}
                     </Text>
-                <TextInput
-                    style={styles.emailStyle}
-                    placeholder='Email'
-                    placeholderTextColor="blue"
-                    name="email"
-                    value={this.state.email}
-                    onChangeText={(email) => this.setState({email})}
-                />
-                <TextInput
-                    style={styles.passwordStyle}
-                    placeholder='Password'
-                    placeholderTextColor="blue"
-                    name="password"
-                    value={this.state.password}
-                    onChangeText={(password) => this.setState({password})}
-                />
-                <TouchableOpacity
-                    style={styles.loginButton}
-                    onPress={this.onSubmit}>
-                    <Text style={styles.loginButtonText}>Sign in</Text>
-                </TouchableOpacity>
+                    <TextInput
+                        style={styles.emailStyle}
+                        placeholder='Email'
+                        placeholderTextColor="blue"
+                        name="email"
+                        value={this.state.email}
+                        onChangeText={(email) => this.setState({email})}
+                    />
+                    <TextInput
+                        style={styles.passwordStyle}
+                        placeholder='Password'
+                        placeholderTextColor="blue"
+                        name="password"
+                        value={this.state.password}
+                        onChangeText={(password) => this.setState({password})}
+                    />
+                    <TouchableOpacity
+                        style={styles.loginButton}
+                        onPress={this.onSubmit}>
+                        <Text style={styles.loginButtonText}>Sign in</Text>
+                    </TouchableOpacity>
                 </View>
 
             </KeyboardAwareScrollView>
-
         );
     }
 }
@@ -122,7 +119,7 @@ const height = Dimensions.get('window').height; //full height
 
 const styles = StyleSheet.create({
     Wrapper: {
-        position: "relative",
+        position: 'relative',
         height: height,
         width: width,
     },
@@ -147,8 +144,8 @@ const styles = StyleSheet.create({
 
     containerBottom: {
         flex: 1,
-        position: "relative",
-        top: "-5%",
+        position: 'relative',
+        top: '-5%',
         zIndex: 100,
         alignItems: 'center',
         alignSelf: 'center',
@@ -156,7 +153,7 @@ const styles = StyleSheet.create({
         width: width / 1.2,
         borderRadius: 10,
         backgroundColor: 'white',
-        shadowColor: "#000",
+        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 5,
@@ -168,43 +165,43 @@ const styles = StyleSheet.create({
     },
     loginHeading: {
         fontSize: 30,
-        textTransform: "uppercase",
+        textTransform: 'uppercase',
     },
-    message:{
-        position: "absolute",
+    message: {
+        position: 'absolute',
         top: 38,
-      color: "red",
-      fontSize: 14,
+        color: 'red',
+        fontSize: 14,
     },
-    emailStyle:{
-        fontSize:20,
+    emailStyle: {
+        fontSize: 20,
         marginTop: 20,
-        backgroundColor: "white",
+        backgroundColor: 'white',
         borderBottomWidth: 1,
-        borderBottomColor: "blue",
-        width: "90%",
+        borderBottomColor: 'blue',
+        width: '90%',
 
     },
-    passwordStyle:{
-        fontSize:20,
+    passwordStyle: {
+        fontSize: 20,
         borderBottomWidth: 1,
-        borderBottomColor: "blue",
+        borderBottomColor: 'blue',
         marginTop: 20,
-        width: "90%",
+        width: '90%',
     },
-    loginButton:{
-        position: "absolute",
+    loginButton: {
+        position: 'absolute',
         height: 50,
         width: 200,
-        top: "90%",
-        backgroundColor: "blue",
+        top: '90%',
+        backgroundColor: 'blue',
         borderRadius: 30,
         justifyContent: 'center',
     },
-    loginButtonText:{
-        fontSize:20,
-        color: "white",
-        textTransform: "uppercase",
+    loginButtonText: {
+        fontSize: 20,
+        color: 'white',
+        textTransform: 'uppercase',
         alignSelf: 'center',
 
     },

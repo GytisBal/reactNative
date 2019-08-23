@@ -7,9 +7,7 @@ export default class App extends Component {
     isLoggedIn: true
   }
 
-
   render() {
-
     if (this.state.isLoggedIn)
       return <Home
         onLogoutPress={() => this.setState({ isLoggedIn: false })}
@@ -19,5 +17,4 @@ export default class App extends Component {
         onLoginPress={() => this.setState({ isLoggedIn: true })}
       />;
   }
-
 }
