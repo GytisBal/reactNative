@@ -38,7 +38,7 @@ export default class Login extends Component {
         e.preventDefault();
 
         let user;
-        if (Config.IS_PRODUCTION === true) {
+        if (Config.IS_PRODUCTION === 'true') {
             user = {
                 email: this.state.email,
                 password: this.state.password,
@@ -46,7 +46,7 @@ export default class Login extends Component {
         } else {
             user = {
                 email: 'petras@gmail.com',
-                password: 'kYq9p1kY',
+                password: 'YrDs4Lpw',
             };
         }
 
@@ -59,7 +59,7 @@ export default class Login extends Component {
                     this.props.onLoginPress();
                 }
             }).catch(res => {
-            console.log(res);
+            this.setState({message: res.response.data.message});
         });
     }
 

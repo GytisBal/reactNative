@@ -35,9 +35,9 @@ export function status(token) {
     return postRequest('statusRelay/', {id: 1}, token);
 }
 
-export function toggle(token) {
+export function toggle(token, device_id) {
 
-    return postRequest(`controlRelay/`, {id: 1}, token);
+    return postRequest(`controlRelay/`, {device_id: device_id}, token);
 }
 
 

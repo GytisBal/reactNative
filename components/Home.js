@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {toggle, status} from './api';
+import Button from './Button';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -18,8 +19,8 @@ export default class Home extends Component {
         super();
         this.state = {
             status: false,
-            onAction: false,
             isLoading: true,
+            devices: [],
         };
 
         this.toggleButton = this.toggleButton.bind(this);
@@ -32,7 +33,7 @@ export default class Home extends Component {
             .then(token => {
                 status(token)
                     .then(res => {
-                        this.setState({status: res.data.status});
+                        this.setState({devices: [...res.data.devices]});
                         this.removeToken();
                         this.storeToken(res.data.accessToken);
                     })
@@ -77,14 +78,13 @@ export default class Home extends Component {
         }
     };
 
-    toggleButton(e) {
-        e.preventDefault();
-        this.setState({onAction: true});
-        this.getToken()
+  async toggleButton(device_id) {
+
+      return this.getToken()
             .then(token => {
-                toggle(token)
+               return toggle(token, device_id)
                     .then(res => {
-                        this.setState({onAction: false});
+                        console.log(res)
                         if (res.data.turn === 'on') {
                             this.setState({status: true});
                         } else {
@@ -94,11 +94,12 @@ export default class Home extends Component {
                     }).then(res => {
                     this.removeToken();
                     this.storeToken(res);
+                    return false
                 }).catch(res => {
                     if (res) {
                         console.log(res);
                         this.removeToken();
-                        this.props.onLogoutPress;
+                        this.props.onLogoutPress();
                     }
                 });
             });
@@ -106,32 +107,16 @@ export default class Home extends Component {
 
     logout(e) {
         e.preventDefault();
-        console.log('labas');
         this.props.onLogoutPress();
         this.removeToken();
     }
 
     render() {
-        let color;
-        let buttonText;
-        let tapText;
-        let statusText;
-
-        if (this.state.status === true) {
-            color = '#b0c24a';
-            buttonText = 'close';
-            tapText = 'Tap To Close';
-        } else {
-            color = '#b70b0b';
-            buttonText = 'open';
-            tapText = 'Tap To Open';
-        }
-
-        if (this.state.onAction === true && this.state.status === true) {
-            statusText = 'Closing...';
-        } else if (this.state.onAction === true && this.state.status === false) {
-            statusText = 'Opening...';
-        }
+        const button = this.state.devices.map(item => {
+            return (
+                <Button key={item.id} status={this.state.status} params={item} toggleButton={this.toggleButton}/>
+            );
+        });
 
         if (this.state.isLoading === true) {
             return (
@@ -140,6 +125,18 @@ export default class Home extends Component {
                         <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
                     </View>
                     <Text style={styles.loadingHeader}> Loading... </Text>
+                </View>
+            );
+        } else if (this.state.devices.length <= 0) {
+            return (
+                <View>
+                    <TouchableOpacity
+                        onPress={this.logout}
+                        style={styles.logoutButton}
+                    >
+                        <Text style={styles.logoutText}> Logout </Text>
+                    </TouchableOpacity>
+                    <Text style={styles.header}>You dont have devices</Text>
                 </View>
             );
         } else {
@@ -153,30 +150,7 @@ export default class Home extends Component {
                     </TouchableOpacity>
 
                     <ScrollView onScroll={this.handleScroll}>
-                        <View style={styles.mainButtonContainer}>
-                            <Text style={styles.header}> Lempa </Text>
-                            <TouchableOpacity
-                                onPress={this.toggleButton}
-                                disabled={this.state.onAction}
-                                style={[{backgroundColor: color}, styles.mainButton]}
-                            >
-                                <Text style={styles.buttonText}> {buttonText} </Text>
-                            </TouchableOpacity>
-                            <Text style={styles.tapText}> ({tapText}) </Text>
-                            <Text style={styles.statusText}> {statusText} </Text>
-                        </View>
-                        <View style={styles.mainButtonContainer}>
-                            <Text style={styles.header}> Kitas</Text>
-                            <TouchableOpacity
-                                onPress={this.toggleButton}
-                                disabled={true}
-                                style={[{backgroundColor: 'grey'}, styles.mainButton]}
-                            >
-                                <Text style={styles.buttonText}> {buttonText} </Text>
-                            </TouchableOpacity>
-                            <Text style={styles.tapText}> ({tapText}) </Text>
-                            <Text style={styles.statusText}> {statusText} </Text>
-                        </View>
+                        {button}
                     </ScrollView>
                 </View>
             );
@@ -263,7 +237,6 @@ const styles = StyleSheet.create({
         elevation: 11,
     },
     buttonText: {
-        fontSize: 40,
         color: 'white',
         textTransform: 'uppercase',
         alignSelf: 'center',
