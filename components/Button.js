@@ -12,7 +12,8 @@ export default class Button extends Component {
     constructor() {
         super();
         this.state = {
-            onAction: false
+            onAction: false,
+            disable: false,
         };
         this.toggleButton = this.toggleButton.bind(this);
     }
@@ -21,8 +22,9 @@ export default class Button extends Component {
         this.setState({onAction: true})
        const{device_id} = this.props.params
         this.props.toggleButton(device_id).then(res=>{
-
-            this.setState({onAction: res})
+            setTimeout(()=>{
+                this.setState({onAction: res})
+            }, 1000)
         })
     }
 
@@ -36,7 +38,7 @@ export default class Button extends Component {
             buttonText = 'Disabled';
             tapText = '';
             fontSize = 30;
-        } else if (this.props.status === true) {
+        } else if (this.props.params.turn === 'on') {
             fontSize = 40;
             color = '#b0c24a';
             buttonText = 'close';
@@ -49,9 +51,9 @@ export default class Button extends Component {
         }
 
         let statusText;
-        if (this.state.onAction === true && this.props.status === true) {
+        if (this.state.onAction === true && this.props.params.turn === 'on') {
             statusText = 'Closing...';
-        } else if (this.state.onAction === true && this.props.status === false) {
+        } else if (this.state.onAction === true && this.props.params.turn === 'off') {
             statusText = 'Opening...';
         }
         return (

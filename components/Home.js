@@ -11,6 +11,7 @@ import {
     StyleSheet,
     Dimensions,
     ScrollView,
+    RefreshControl,
 } from 'react-native';
 
 const access_token = '';
@@ -21,6 +22,7 @@ export default class Home extends Component {
             status: false,
             isLoading: true,
             devices: [],
+            refreshing: false,
         };
 
         this.toggleButton = this.toggleButton.bind(this);
@@ -49,6 +51,27 @@ export default class Home extends Component {
                 }, 3000);
             });
     }
+
+    _onRefresh = () => {
+        this.setState({refreshing: true});
+        this.getToken()
+            .then(token => {
+                status(token)
+                    .then(res => {
+                        this.setState({devices: [...res.data.devices]});
+                        this.removeToken();
+                        this.storeToken(res.data.accessToken);
+                        this.setState({refreshing: false});
+                    })
+                    .catch(res => {
+                        if (res) {
+                            console.log(res);
+                            this.removeToken();
+                            this.props.onLogoutPress();
+                        }
+                    });
+            });
+    };
 
     storeToken = async (accessToken) => {
         try {
@@ -83,16 +106,8 @@ export default class Home extends Component {
             .then(token => {
                 return toggle(token, device_id)
                     .then(res => {
-                        if (res.data.devices) {
-                            this.setState({devices: [...res.data.devices]});
-
-                        } else {
-                            if (res.data.turn === 'on') {
-                                this.setState({status: true});
-                            } else {
-                                this.setState({status: false});
-                            }
-                        }
+                        console.log(res)
+                        this.setState({devices: [...res.data.devices]});
                         return res.data.accessToken;
                     }).then(res => {
                         this.removeToken();
@@ -116,6 +131,7 @@ export default class Home extends Component {
 
     render() {
         const button = this.state.devices.map(item => {
+            console.log(item.status)
             return (
                 <Button key={item.id} status={this.state.status} params={item} toggleButton={this.toggleButton}/>
             );
@@ -152,7 +168,14 @@ export default class Home extends Component {
                         <Text style={styles.logoutText}> Logout </Text>
                     </TouchableOpacity>
 
-                    <ScrollView onScroll={this.handleScroll}>
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this._onRefresh}
+                            />
+                        }
+                    >
                         {button}
                     </ScrollView>
                 </View>
