@@ -78,30 +78,33 @@ export default class Home extends Component {
         }
     };
 
-  async toggleButton(device_id) {
-
-      return this.getToken()
+    async toggleButton(device_id) {
+        return this.getToken()
             .then(token => {
-               return toggle(token, device_id)
+                return toggle(token, device_id)
                     .then(res => {
-                        console.log(res)
-                        if (res.data.turn === 'on') {
-                            this.setState({status: true});
+                        if (res.data.devices) {
+                            this.setState({devices: [...res.data.devices]});
+
                         } else {
-                            this.setState({status: false});
+                            if (res.data.turn === 'on') {
+                                this.setState({status: true});
+                            } else {
+                                this.setState({status: false});
+                            }
                         }
                         return res.data.accessToken;
                     }).then(res => {
-                    this.removeToken();
-                    this.storeToken(res);
-                    return false
-                }).catch(res => {
-                    if (res) {
-                        console.log(res);
                         this.removeToken();
-                        this.props.onLogoutPress();
-                    }
-                });
+                        this.storeToken(res);
+                        return false;
+                    }).catch(res => {
+                        if (res) {
+                            console.log(res);
+                            this.removeToken();
+                            this.props.onLogoutPress();
+                        }
+                    });
             });
     }
 
