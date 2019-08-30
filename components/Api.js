@@ -13,15 +13,10 @@ function getInitializedApi(token) {
         }
     }));
 }
-
 // Helper functions
 function getBaseUrl() {
     return Config.API_HOST_DEVICE_WORK
 }
-
-// function getRequest(url) {
-//     return getInitializedApi().get(url);
-// }
 
 function postRequest(url, data, token) {
     return getInitializedApi(token).post(url, data);
@@ -36,7 +31,6 @@ export function status(token) {
 }
 
 export function toggle(token, device_id) {
-
     return postRequest(`controlRelay/`, {device_id: device_id}, token);
 }
 

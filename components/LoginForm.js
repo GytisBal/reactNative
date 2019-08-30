@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
-import {login} from './api';
+import {login} from './Api';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Config from 'react-native-config';
-import AsyncStorage from '@react-native-community/async-storage';
+import {storeToken} from './AsyncStorage';
 import {
     Text,
     TextInput,
@@ -14,7 +14,6 @@ import {
     Dimensions,
 } from 'react-native';
 
-const access_token = '';
 export default class Login extends Component {
     constructor() {
         super();
@@ -26,17 +25,8 @@ export default class Login extends Component {
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    storeToken = async (accessToken) => {
-        try {
-            await AsyncStorage.setItem(access_token, accessToken);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     onSubmit(e) {
         e.preventDefault();
-
         let user;
         if (Config.IS_PRODUCTION === 'true') {
             user = {
@@ -55,7 +45,7 @@ export default class Login extends Component {
                 if (res.data.message) {
                     this.setState({message: res.data.message});
                 } else {
-                    this.storeToken(res.data.accessToken);
+                    storeToken(res.data.accessToken);
                     this.props.onLoginPress();
                 }
             }).catch(res => {
@@ -108,7 +98,6 @@ export default class Login extends Component {
                         <Text style={styles.loginButtonText}>Sign in</Text>
                     </TouchableOpacity>
                 </View>
-
             </KeyboardAwareScrollView>
         );
     }
@@ -116,7 +105,6 @@ export default class Login extends Component {
 
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
-
 const styles = StyleSheet.create({
     Wrapper: {
         position: 'relative',
@@ -160,7 +148,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.36,
         shadowRadius: 6.68,
-
         elevation: 11,
     },
     loginHeading: {

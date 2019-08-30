@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {toggle, status} from './api';
+import {toggle, status} from './Api';
 import Button from './Button';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
-import AsyncStorage from '@react-native-community/async-storage';
+import {storeToken, getToken, removeToken} from './AsyncStorage';
 import {
     Text,
     View,
@@ -14,19 +14,16 @@ import {
     RefreshControl,
 } from 'react-native';
 
-const access_token = '';
 export default class Home extends Component {
     _isMounted = false;
 
     constructor() {
         super();
         this.state = {
-            status: false,
             isLoading: true,
             devices: [],
             refreshing: false,
         };
-
         this.toggleButton = this.toggleButton.bind(this);
         this.logout = this.logout.bind(this);
     }
@@ -34,18 +31,18 @@ export default class Home extends Component {
     componentDidMount() {
         this._isMounted = true;
         this.setState({isLoading: true});
-        this.getToken()
+        getToken()
             .then(token => {
                 status(token)
                     .then(res => {
-                        this.removeToken();
-                        this.storeToken(res.data.accessToken);
+                        removeToken();
+                        storeToken(res.data.accessToken);
                         this.setState({devices: [...res.data.devices]});
                     })
                     .catch(res => {
                         if (res) {
                             console.log(res);
-                            this.removeToken();
+                            removeToken();
                             this.props.onLogoutPress();
                         }
                     });
@@ -57,67 +54,39 @@ export default class Home extends Component {
 
     _onRefresh = () => {
         this.setState({refreshing: true});
-        this.getToken()
+        getToken()
             .then(token => {
                 status(token)
                     .then(res => {
-                        this.removeToken();
-                        this.storeToken(res.data.accessToken);
+                        removeToken();
+                        storeToken(res.data.accessToken);
                         this.setState({devices: [...res.data.devices], refreshing: false});
                     })
                     .catch(res => {
                         if (res) {
                             console.log(res);
-                            this.removeToken();
+                            removeToken();
                             this.props.onLogoutPress();
                         }
                     });
             });
     };
 
-    storeToken = async (accessToken) => {
-        try {
-            await AsyncStorage.setItem(access_token, accessToken);
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    getToken = async () => {
-        try {
-            const value = await AsyncStorage.getItem(access_token);
-            if (value !== null) {
-                return value;
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    removeToken = async () => {
-        try {
-            await AsyncStorage.removeItem(access_token);
-            this.getToken();
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
     async toggleButton(device_id) {
-        return this.getToken()
+        return getToken()
             .then(token => {
                 return toggle(token, device_id)
                     .then(res => {
                         this.setState({devices: [...res.data.devices]});
                         return res.data.accessToken;
                     }).then(res => {
-                        this.removeToken();
-                        this.storeToken(res);
+                        removeToken();
+                        storeToken(res);
                         return false;
                     }).catch(res => {
                         if (res) {
                             console.log(res);
-                            this.removeToken();
+                            removeToken();
                             this.props.onLogoutPress();
                         }
                     });
@@ -127,13 +96,13 @@ export default class Home extends Component {
     logout(e) {
         e.preventDefault();
         this.props.onLogoutPress();
-        this.removeToken();
+        removeToken();
     }
 
     render() {
         let button;
         if (this.state.devices.length <= 0) {
-            button = <Text style={styles.header1}>You dont have devices</Text>
+            button = <Text style={styles.header}>You dont have devices</Text>;
         } else {
             button = this.state.devices.map(item => {
                 return (
@@ -141,8 +110,6 @@ export default class Home extends Component {
                 );
             });
         }
-
-
         if (this.state.isLoading === true) {
             return (
                 <View style={styles.loadingPage}>
@@ -161,7 +128,6 @@ export default class Home extends Component {
                     >
                         <Text style={styles.logoutText}> Logout </Text>
                     </TouchableOpacity>
-
                     <ScrollView
                         refreshControl={
                             <RefreshControl
@@ -220,21 +186,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 25,
     },
-
-    mainButtonContainer: {
-        flex: 1,
-        height: height,
-        width: width,
-    },
     header: {
-        fontSize: 30,
-        top: '15%',
-        color: 'black',
-        alignSelf: 'center',
-        textTransform: 'uppercase',
-        backgroundColor: 'transparent',
-    },
-    header1: {
         flex: 1,
         height: height,
         width: width,
@@ -246,48 +198,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         textTransform: 'uppercase',
         backgroundColor: 'transparent',
-    },
-    mainButton: {
-        position: 'relative',
-        top: '30%',
-        width: 200,
-        height: 200,
-        borderRadius: 200 / 2,
-        justifyContent: 'center',
-        textAlign: 'center',
-        alignSelf: 'center',
-        textTransform: 'uppercase',
-        borderWidth: 15,
-        borderColor: '#D3D3D3',
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 5,
-        },
-        shadowOpacity: 0.36,
-        shadowRadius: 6.68,
-        elevation: 11,
-    },
-    buttonText: {
-        color: 'white',
-        textTransform: 'uppercase',
-        alignSelf: 'center',
-        fontWeight: 'bold',
-    },
-    tapText: {
-        position: 'relative',
-        top: '35%',
-        fontSize: 20,
-        color: 'black',
-        alignSelf: 'center',
-    },
-    statusText: {
-        position: 'relative',
-        top: '40%',
-        fontWeight: 'bold',
-        fontSize: 15,
-        color: 'black',
-        alignSelf: 'center',
     },
 });

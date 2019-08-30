@@ -5,7 +5,6 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    ScrollView,
 } from 'react-native';
 
 export default class Button extends Component {
@@ -13,7 +12,6 @@ export default class Button extends Component {
         super();
         this.state = {
             onAction: false,
-            disable: false,
         };
         this.toggleButton = this.toggleButton.bind(this);
     }
@@ -90,7 +88,6 @@ export default class Button extends Component {
     }
 }
 
-
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
 const styles = StyleSheet.create({
@@ -119,7 +116,6 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
         borderWidth: 15,
         borderColor: '#D3D3D3',
-
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
