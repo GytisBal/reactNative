@@ -16,6 +16,8 @@ import {
 
 const access_token = '';
 export default class Home extends Component {
+    _isMounted = false;
+
     constructor() {
         super();
         this.state = {
@@ -30,14 +32,15 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
+        this._isMounted = true;
         this.setState({isLoading: true});
         this.getToken()
             .then(token => {
                 status(token)
                     .then(res => {
-                        this.setState({devices: [...res.data.devices]});
                         this.removeToken();
                         this.storeToken(res.data.accessToken);
+                        this.setState({devices: [...res.data.devices]});
                     })
                     .catch(res => {
                         if (res) {
@@ -58,10 +61,9 @@ export default class Home extends Component {
             .then(token => {
                 status(token)
                     .then(res => {
-                        this.setState({devices: [...res.data.devices]});
                         this.removeToken();
                         this.storeToken(res.data.accessToken);
-                        this.setState({refreshing: false});
+                        this.setState({devices: [...res.data.devices], refreshing: false});
                     })
                     .catch(res => {
                         if (res) {
@@ -106,7 +108,6 @@ export default class Home extends Component {
             .then(token => {
                 return toggle(token, device_id)
                     .then(res => {
-                        console.log(res)
                         this.setState({devices: [...res.data.devices]});
                         return res.data.accessToken;
                     }).then(res => {
@@ -130,12 +131,17 @@ export default class Home extends Component {
     }
 
     render() {
-        const button = this.state.devices.map(item => {
-            console.log(item.status)
-            return (
-                <Button key={item.id} status={this.state.status} params={item} toggleButton={this.toggleButton}/>
-            );
-        });
+        let button;
+        if (this.state.devices.length <= 0) {
+            button = <Text style={styles.header1}>You dont have devices</Text>
+        } else {
+            button = this.state.devices.map(item => {
+                return (
+                    <Button key={item.id} params={item} toggleButton={this.toggleButton}/>
+                );
+            });
+        }
+
 
         if (this.state.isLoading === true) {
             return (
@@ -144,18 +150,6 @@ export default class Home extends Component {
                         <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
                     </View>
                     <Text style={styles.loadingHeader}> Loading... </Text>
-                </View>
-            );
-        } else if (this.state.devices.length <= 0) {
-            return (
-                <View>
-                    <TouchableOpacity
-                        onPress={this.logout}
-                        style={styles.logoutButton}
-                    >
-                        <Text style={styles.logoutText}> Logout </Text>
-                    </TouchableOpacity>
-                    <Text style={styles.header}>You dont have devices</Text>
                 </View>
             );
         } else {
@@ -237,6 +231,19 @@ const styles = StyleSheet.create({
         top: '15%',
         color: 'black',
         alignSelf: 'center',
+        textTransform: 'uppercase',
+        backgroundColor: 'transparent',
+    },
+    header1: {
+        flex: 1,
+        height: height,
+        width: width,
+        fontSize: 25,
+        top: '15%',
+        color: 'black',
+        alignSelf: 'center',
+        textAlign: 'center',
+        justifyContent: 'center',
         textTransform: 'uppercase',
         backgroundColor: 'transparent',
     },

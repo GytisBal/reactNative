@@ -19,13 +19,11 @@ export default class Button extends Component {
     }
 
     toggleButton() {
-        this.setState({onAction: true})
-       const{device_id} = this.props.params
-        this.props.toggleButton(device_id).then(res=>{
-            setTimeout(()=>{
-                this.setState({onAction: res})
-            }, 1000)
-        })
+        this.setState({onAction: true});
+        const {device_id} = this.props.params;
+        this.props.toggleButton(device_id).then(res => {
+            this.setState({onAction: res});
+        });
     }
 
     render() {
@@ -43,6 +41,16 @@ export default class Button extends Component {
             color = '#b0c24a';
             buttonText = 'close';
             tapText = '(Tap To Close)';
+        } else if (this.props.params.turn === 'off') {
+            fontSize = 40;
+            color = '#b70b0b';
+            buttonText = 'open';
+            tapText = '(Tap To Open)';
+        } else if (this.props.params.turn === undefined && this.props.params.status === true) {
+            fontSize = 40;
+            color = '#b0c24a';
+            buttonText = 'close';
+            tapText = '(Tap To Close)';
         } else {
             fontSize = 40;
             color = '#b70b0b';
@@ -51,11 +59,20 @@ export default class Button extends Component {
         }
 
         let statusText;
-        if (this.state.onAction === true && this.props.params.turn === 'on') {
-            statusText = 'Closing...';
-        } else if (this.state.onAction === true && this.props.params.turn === 'off') {
-            statusText = 'Opening...';
+        if (this.props.params.turn === undefined) {
+            if (this.state.onAction === true && this.props.params.status === true) {
+                statusText = 'Closing...';
+            } else if (this.state.onAction === true && this.props.params.status === false) {
+                statusText = 'Opening...';
+            }
+        } else {
+            if (this.state.onAction === true && this.props.params.turn === 'on') {
+                statusText = 'Closing...';
+            } else if (this.state.onAction === true && this.props.params.turn === 'off') {
+                statusText = 'Opening...';
+            }
         }
+
         return (
             <View style={styles.mainButtonContainer}>
                 <Text style={styles.header}> {this.props.params.name} </Text>
