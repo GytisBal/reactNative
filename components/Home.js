@@ -20,7 +20,7 @@ export default class Home extends Component {
     constructor() {
         super();
         this.state = {
-            isLoading: true,
+            isLoading: false,
             devices: [],
             refreshing: false,
         };
@@ -35,9 +35,11 @@ export default class Home extends Component {
             .then(token => {
                 status(token)
                     .then(res => {
-                        removeToken();
-                        storeToken(res.data.accessToken);
-                        this.setState({devices: [...res.data.devices]});
+                        if (this._isMounted) {
+                            removeToken();
+                            storeToken(res.data.accessToken);
+                            this.setState({devices: [...res.data.devices]});
+                        }
                     })
                     .catch(res => {
                         if (res) {
@@ -50,6 +52,10 @@ export default class Home extends Component {
                     this.setState({isLoading: false});
                 }, 3000);
             });
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     _onRefresh = () => {

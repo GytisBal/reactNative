@@ -1,4 +1,6 @@
 import React, {Component} from 'react';
+import Animation from './Animation';
+
 import {
     Text,
     View,
@@ -12,16 +14,28 @@ export default class Button extends Component {
         super();
         this.state = {
             onAction: false,
+            paused: true,
         };
         this.toggleButton = this.toggleButton.bind(this);
+        this.test = this.test.bind(this);
+    }
+
+    test() {
+        this.setState({paused: false, onAction: true});
     }
 
     toggleButton() {
-        this.setState({onAction: true});
+
         const {device_id} = this.props.params;
-        this.props.toggleButton(device_id).then(res => {
-            this.setState({onAction: res});
-        });
+        setTimeout(()=>{
+            console.log('labas')
+            this.props.toggleButton(device_id).then(res => {
+                this.setState({onAction: res, paused: !res});
+            }, 1000);
+        })
+
+
+
     }
 
     render() {
@@ -74,8 +88,14 @@ export default class Button extends Component {
         return (
             <View style={styles.mainButtonContainer}>
                 <Text style={styles.header}> {this.props.params.name} </Text>
+                <Animation
+                    paused={this.state.paused}
+                    toggleButton={this.toggleButton}
+                    turn={this.props.params.turn}
+                    status={this.props.params.status}
+                />
                 <TouchableOpacity
-                    onPress={this.toggleButton}
+                    onPress={this.test}
                     disabled={this.state.onAction}
                     style={[{backgroundColor: color}, styles.mainButton]}
                 >
@@ -95,10 +115,10 @@ const styles = StyleSheet.create({
         flex: 1,
         height: height,
         width: width,
+        justifyContent: 'center',
     },
     header: {
         fontSize: 30,
-        top: '15%',
         color: 'black',
         alignSelf: 'center',
         textTransform: 'uppercase',
@@ -106,7 +126,7 @@ const styles = StyleSheet.create({
     },
     mainButton: {
         position: 'relative',
-        top: '30%',
+        marginTop: 20,
         width: 200,
         height: 200,
         borderRadius: 200 / 2,
@@ -133,14 +153,14 @@ const styles = StyleSheet.create({
     },
     tapText: {
         position: 'relative',
-        top: '35%',
+        marginTop: 20,
         fontSize: 20,
         color: 'black',
         alignSelf: 'center',
     },
     statusText: {
         position: 'relative',
-        top: '40%',
+        marginTop: 20,
         fontWeight: 'bold',
         fontSize: 15,
         color: 'black',

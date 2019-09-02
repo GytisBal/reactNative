@@ -36,7 +36,7 @@ export default class Login extends Component {
         } else {
             user = {
                 email: 'petras@gmail.com',
-                password: 'JcmHKBjL',
+                password: 'VOU5W4Gv',
             };
         }
 
