@@ -1,64 +1,121 @@
 import React, {Component} from 'react';
-import Animation from './Animation';
+import Animation from './Animation2';
 
 import {
     Text,
     View,
     TouchableOpacity,
     StyleSheet,
-    Dimensions,
+    Dimensions, Animated, Easing,
 } from 'react-native';
 
 export default class Button extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             onAction: false,
-            paused: true,
+            isOn: false,
+            animatedValue: new Animated.Value(0),
+
         };
         this.toggleButton = this.toggleButton.bind(this);
-        this.test = this.test.bind(this);
     }
 
-    test() {
-        this.setState({paused: false, onAction: true});
+    componentDidMount(): void {
+        const {status} = this.props.params
+        this.setState(
+            {isOn: status},
+            () => {
+                Animated.timing(
+                    this.state.animatedValue,
+                    {
+                        toValue: status ? 1 : 0,
+                        duration: 0,
+                        easing: Easing.linear,
+                        delay: 0,
+                    },
+                ).start();
+            },
+        );
     }
+
+
+    // componentWillReceiveProps({params}) {
+    //     this.setState(
+    //         {isOn: params.status},
+    //         () => {
+    //             Animated.timing(
+    //                 this.state.animatedValue,
+    //                 {
+    //                     toValue: params.status ? 1 : 0,
+    //                     duration: 0,
+    //                     easing: Easing.linear,
+    //                     delay: 0,
+    //                 },
+    //             ).start();
+    //         },
+    //     );
+    // }
 
     toggleButton() {
-
-        const {device_id} = this.props.params;
-        setTimeout(()=>{
-            console.log('labas')
+        const {status, turn, device_id} = this.props.params;
+        let isOn;
+        if(turn === undefined){
+            if(status === true){
+                isOn = false
+            }else{
+                isOn = true
+            }
+        }else{
+            if(turn === "on"){
+                isOn = false
+            }else{
+                isOn = true
+            }
+        }
+        this.setState({onAction: true, isOn});
+        setTimeout(() => {
             this.props.toggleButton(device_id).then(res => {
-                this.setState({onAction: res, paused: !res});
-            }, 1000);
-        })
-
-
-
+                this.setState({onAction: res});
+            });
+        }, 3500);
     }
 
     render() {
+        const {onAction, animatedValue, isOn} = this.state;
+        const {status, turn, name} = this.props.params;
+        console.log(status)
         let color;
         let buttonText;
         let tapText;
         let fontSize;
-        if (this.props.params.status === null) {
+
+        Animated.timing(
+            animatedValue,
+            {
+                toValue: isOn ? 1 : 0,
+                duration: 5000,
+                easing: Easing.linear,
+                delay: 0,
+            },
+        ).start();
+
+        if (status === null) {
             color = 'grey';
             buttonText = 'Disabled';
             tapText = '';
             fontSize = 30;
-        } else if (this.props.params.turn === 'on') {
+        } else if (turn === 'on') {
             fontSize = 40;
             color = '#b0c24a';
             buttonText = 'close';
             tapText = '(Tap To Close)';
-        } else if (this.props.params.turn === 'off') {
+        } else if (turn === 'off') {
             fontSize = 40;
             color = '#b70b0b';
             buttonText = 'open';
             tapText = '(Tap To Open)';
-        } else if (this.props.params.turn === undefined && this.props.params.status === true) {
+        } else if (turn === undefined && status === true) {
             fontSize = 40;
             color = '#b0c24a';
             buttonText = 'close';
@@ -71,32 +128,28 @@ export default class Button extends Component {
         }
 
         let statusText;
-        if (this.props.params.turn === undefined) {
-            if (this.state.onAction === true && this.props.params.status === true) {
+        if (turn === undefined) {
+            if (onAction === true && status === true) {
                 statusText = 'Closing...';
-            } else if (this.state.onAction === true && this.props.params.status === false) {
+            } else if (onAction === true && status === false) {
                 statusText = 'Opening...';
             }
         } else {
-            if (this.state.onAction === true && this.props.params.turn === 'on') {
+            if (onAction === true && turn === 'on') {
                 statusText = 'Closing...';
-            } else if (this.state.onAction === true && this.props.params.turn === 'off') {
+            } else if (onAction === true && turn === 'off') {
                 statusText = 'Opening...';
             }
         }
-
         return (
             <View style={styles.mainButtonContainer}>
-                <Text style={styles.header}> {this.props.params.name} </Text>
+                <Text style={styles.header}> {name} </Text>
                 <Animation
-                    paused={this.state.paused}
-                    toggleButton={this.toggleButton}
-                    turn={this.props.params.turn}
-                    status={this.props.params.status}
+                    animatedValue={animatedValue}
                 />
                 <TouchableOpacity
-                    onPress={this.test}
-                    disabled={this.state.onAction}
+                    onPress={this.toggleButton}
+                    disabled={onAction}
                     style={[{backgroundColor: color}, styles.mainButton]}
                 >
                     <Text style={[{fontSize: fontSize}, styles.buttonText]}> {buttonText} </Text>
