@@ -15,8 +15,6 @@ import {
 } from 'react-native';
 
 export default class Home extends Component {
-    _isMounted = false;
-
     constructor() {
         super();
         this.state = {
@@ -29,17 +27,14 @@ export default class Home extends Component {
     }
 
     componentDidMount() {
-        this._isMounted = true;
         this.setState({isLoading: true});
         getToken()
             .then(token => {
                 status(token)
                     .then(res => {
-                        if (this._isMounted) {
-                            removeToken();
-                            storeToken(res.data.accessToken);
-                            this.setState({devices: [...res.data.devices]});
-                        }
+                        removeToken();
+                        storeToken(res.data.accessToken);
+                        this.setState({devices: [...res.data.devices]});
                     })
                     .catch(res => {
                         if (res) {
@@ -55,7 +50,7 @@ export default class Home extends Component {
     }
 
     componentWillUnmount() {
-        this._isMounted = false;
+
     }
 
     _onRefresh = () => {
@@ -83,6 +78,7 @@ export default class Home extends Component {
             .then(token => {
                 return toggle(token, device_id)
                     .then(res => {
+
                         this.setState({devices: [...res.data.devices]});
                         return res.data.accessToken;
                     }).then(res => {

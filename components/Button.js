@@ -14,15 +14,16 @@ export default class Button extends Component {
         super(props);
         this.state = {
             onAction: false,
-            isOn: false,
+            isOn: this.props.params.status,
             animatedValue: new Animated.Value(0),
 
         };
         this.toggleButton = this.toggleButton.bind(this);
+        console.log(props);
     }
 
     componentDidMount(): void {
-        const {status} = this.props.params
+        const {status} = this.props.params;
         this.setState(
             {isOn: status},
             () => {
@@ -39,38 +40,125 @@ export default class Button extends Component {
         );
     }
 
+    componentWillReceiveProps({params}) {
+        const {status, turn} = params;
+        let isOn;
+        if (turn === undefined) {
+            if (status === false) {
+                isOn = false;
+            } else {
+                isOn = true;
+            }
+        } else {
+            if (turn === 'off') {
+                isOn = false;
+            } else {
+                isOn = true;
+            }
+        }
+        this.setState(
+            {isOn},
+            () => {
+                Animated.timing(
+                    this.state.animatedValue,
+                    {
+                        toValue: isOn ? 1 : 0,
+                        duration: 0,
+                        easing: Easing.linear,
+                        delay: 0,
+                    },
+                ).start();
+            },
+        );
+    }
 
-    // componentWillReceiveProps({params}) {
-    //     this.setState(
-    //         {isOn: params.status},
-    //         () => {
-    //             Animated.timing(
-    //                 this.state.animatedValue,
-    //                 {
-    //                     toValue: params.status ? 1 : 0,
-    //                     duration: 0,
-    //                     easing: Easing.linear,
-    //                     delay: 0,
-    //                 },
-    //             ).start();
-    //         },
-    //     );
+    // static getDerivedStateFromProps(props, state) {
+        // const {status, turn} = props.params;
+        // // const {isOn} = state;
+        // console.log(status, state.isOn)
+        // if(status !== state.isOn){
+        //     return {isOn: status}
+        // }
+
+        // console.log('antras', status, isOn);
+        // if (status === isOn) {
+        //     let isOn;
+        //     if (turn === undefined) {
+        //         if (status === false) {
+        //             isOn = false;
+        //         } else {
+        //             isOn = true;
+        //         }
+        //     } else {
+        //         if (turn === 'off') {
+        //             isOn = false;
+        //         } else {
+        //             isOn = true;
+        //         }
+        //     }
+        //     return {
+        //         isOn,
+        //     };
+        // } else {
+        //     return null;
+        // }
+
+    // }
+
+    // componentDidUpdate(prevProps) {
+    //     // Typical usage (don't forget to compare props):
+    //     const {status, turn} = this.props.params;
+    //     console.log(status, prevProps.params.status)
+    //     if (status !== prevProps.params.status) {
+    //         let isOn;
+    //         if (turn === undefined) {
+    //             if (status === false) {
+    //                 isOn = false;
+    //             } else {
+    //                 isOn = true;
+    //             }
+    //         } else {
+    //             if (turn === 'off') {
+    //                 isOn = false;
+    //             } else {
+    //                 isOn = true;
+    //             }
+    //         }
+    //         this.setState(
+    //             {isOn},
+    //             () => {
+    //                 Animated.timing(
+    //                     this.state.animatedValue,
+    //                     {
+    //                         toValue: isOn ? 1 : 0,
+    //                         duration: 0,
+    //                         easing: Easing.linear,
+    //                         delay: 0,
+    //                     },
+    //                 ).start();
+    //             },
+    //         );
+    //     }
     // }
 
     toggleButton() {
         const {status, turn, device_id} = this.props.params;
         let isOn;
-        if(turn === undefined){
-            if(status === true){
-                isOn = false
-            }else{
-                isOn = true
+        if (turn === undefined) {
+            if (status === null) {
+                isOn = null;
+            } else {
+                if (status === true) {
+                    isOn = false;
+                } else {
+                    isOn = true;
+                }
             }
-        }else{
-            if(turn === "on"){
-                isOn = false
-            }else{
-                isOn = true
+        } else {
+            if (turn === 'on') {
+                isOn = false;
+            } else {
+                isOn = true;
             }
         }
         this.setState({onAction: true, isOn});
@@ -84,7 +172,6 @@ export default class Button extends Component {
     render() {
         const {onAction, animatedValue, isOn} = this.state;
         const {status, turn, name} = this.props.params;
-        console.log(status)
         let color;
         let buttonText;
         let tapText;
@@ -144,9 +231,9 @@ export default class Button extends Component {
         return (
             <View style={styles.mainButtonContainer}>
                 <Text style={styles.header}> {name} </Text>
-                <Animation
+                {status !== null && <Animation
                     animatedValue={animatedValue}
-                />
+                />}
                 <TouchableOpacity
                     onPress={this.toggleButton}
                     disabled={onAction}
