@@ -49,10 +49,6 @@ export default class Home extends Component {
             });
     }
 
-    componentWillUnmount() {
-
-    }
-
     _onRefresh = () => {
         this.setState({refreshing: true});
         getToken()
@@ -72,7 +68,6 @@ export default class Home extends Component {
                     });
             });
     };
-
 
     async toggleButton(device_id) {
         return getToken()
