@@ -1,68 +1,53 @@
-// Load the module
 import React, {Component} from 'react';
-import Video from 'react-native-video';
 import {
+    View,
     StyleSheet,
     Dimensions,
+    Animated,
+    Text,
 } from 'react-native';
 
 
 export default class Animation extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            currentTime: '',
-            duration: '',
-            paused: this.props.paused,
-        };
-        this.onProgress = this.onProgress.bind(this);
-        this.onVideoLoad = this.onVideoLoad.bind(this);
-        this.onSeek = this.onSeek.bind(this);
-    }
+        this.state = {};
 
-    onVideoLoad(e) {
-        this.setState({currentTime: e.currentTime, duration: e.duration});
-        if(this.props.turn === 'on'){
-            this.player.seek(250)
-        }else if (this.props.turn === undefined && this.props.status === true){
-            this.player.seek(250)
-        }
-    }
-
-    onProgress(e) {
-        if(e.currentTime > 4 && e.currentTime < 4.15){
-                this.props.toggleButton()
-        }
-        if(e.currentTime > 8 && e.currentTime < 8.15){
-                this.props.toggleButton()
-        }
-        this.setState({currentTime: e.currentTime});
-    }
-    onSeek(e){
-      console.log(e.seekTime)
     }
 
     render() {
-    // const url = 'https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4';
-        const url = {uri: 'https://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4'};
-        const local = require('../inc/Gates.mp4');
+        const marginRight = this.props.animatedValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 150],
+        });
+        const moveLeft = this.props.animatedValue.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, -150],
+        });
         return (
-            <Video
-                source={local}   // Can be a URL or a local file.
-                ref={(ref) => {
-                    this.player = ref;
-                }}
-                onBuffer={this.onBuffer}                // Callback when remote video is buffering
-                onError={this.videoError}               // Callback when video cannot be loaded
-                onLoad={this.onVideoLoad}
-                onProgress={this.onProgress}
-                onSeek={this.onSeek}
-                resizeMode={'stretch'}
-                repeat={true}
-                rate={0.5}
-                paused={this.props.paused}
-                style={styles.backgroundVideo}
-            />
+            <View style={styles.container}>
+                <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
+                    transform: [{
+                        translateX: moveLeft,
+                    }],
+                },
+                ]}
+                >
+                    <Text style={[styles.gates_header, {textAlign: 'right'}]}>Open</Text>
+                </Animated.View>
+                <View style={styles.gates_content}>
+                    <Text style={styles.gates_content_text}> Welcome </Text>
+                </View>
+                <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
+                    transform: [{
+                        translateX: marginRight,
+                    }],
+                },
+                ]}
+                >
+                    <Text style={[styles.gates_header]}>Gates</Text>
+                </Animated.View>
+            </View>
         );
     }
 }
@@ -71,10 +56,44 @@ export default class Animation extends Component {
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
 const styles = StyleSheet.create({
-    backgroundVideo: {
+    container: {
+        position: 'relative',
         marginTop: 20,
         height: 150,
         width: '100%',
+        flexDirection: 'row',
+        overflow: 'hidden',
     },
+    gates_panel: {
+        position: 'relative',
+        backgroundColor: 'blue',
+        width: '50%',
+        height: '100%',
+        zIndex: 2,
+        justifyContent: 'center',
+    },
+    gates_panel_left: {},
+    gates_panel_right: {},
+    gates_header: {
+        color: 'white',
+        margin: 4,
+        fontSize: 30,
+        textTransform: 'uppercase',
+    },
+    gates_content: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    gates_content_text:{
+        alignSelf: 'center',
+        fontSize: 40,
+        textTransform: 'uppercase',
+    }
+
 });
 
