@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Animation from './Animation2';
+import Animation from './Animation';
 
 import {
     Text,
@@ -14,190 +14,74 @@ export default class Button extends Component {
         super(props);
         this.state = {
             onAction: false,
-            isOn: this.props.params.status,
             animatedValue: new Animated.Value(0),
-
         };
         this.toggleButton = this.toggleButton.bind(this);
-        console.log(props);
+        this.toggleAnimation = this.toggleAnimation.bind(this);
     }
 
     componentDidMount(): void {
-        const {status} = this.props.params;
-        this.setState(
-            {isOn: status},
-            () => {
-                Animated.timing(
-                    this.state.animatedValue,
-                    {
-                        toValue: status ? 1 : 0,
-                        duration: 0,
-                        easing: Easing.linear,
-                        delay: 0,
-                    },
-                ).start();
-            },
-        );
+        const {status, turn} = this.props.params;
+        this.toggleAnimation(0, !status, turn);
     }
 
-    componentWillReceiveProps({params}) {
-        const {status, turn} = params;
-        let isOn;
-        if (turn === undefined) {
-            if (status === false) {
-                isOn = false;
-            } else {
-                isOn = true;
-            }
-        } else {
-            if (turn === 'off') {
-                isOn = false;
-            } else {
-                isOn = true;
-            }
+    componentDidUpdate(prevProps): void {
+        const {status, turn} = this.props.params;
+        if (prevProps.refreshing !== this.props.refreshing){
+            this.toggleAnimation(0, !status, turn)
         }
-        this.setState(
-            {isOn},
-            () => {
-                Animated.timing(
-                    this.state.animatedValue,
-                    {
-                        toValue: isOn ? 1 : 0,
-                        duration: 0,
-                        easing: Easing.linear,
-                        delay: 0,
-                    },
-                ).start();
-            },
-        );
     }
 
-    // static getDerivedStateFromProps(props, state) {
-        // const {status, turn} = props.params;
-        // // const {isOn} = state;
-        // console.log(status, state.isOn)
-        // if(status !== state.isOn){
-        //     return {isOn: status}
-        // }
-
-        // console.log('antras', status, isOn);
-        // if (status === isOn) {
-        //     let isOn;
-        //     if (turn === undefined) {
-        //         if (status === false) {
-        //             isOn = false;
-        //         } else {
-        //             isOn = true;
-        //         }
-        //     } else {
-        //         if (turn === 'off') {
-        //             isOn = false;
-        //         } else {
-        //             isOn = true;
-        //         }
-        //     }
-        //     return {
-        //         isOn,
-        //     };
-        // } else {
-        //     return null;
-        // }
-
-    // }
-
-    // componentDidUpdate(prevProps) {
-    //     // Typical usage (don't forget to compare props):
-    //     const {status, turn} = this.props.params;
-    //     console.log(status, prevProps.params.status)
-    //     if (status !== prevProps.params.status) {
-    //         let isOn;
-    //         if (turn === undefined) {
-    //             if (status === false) {
-    //                 isOn = false;
-    //             } else {
-    //                 isOn = true;
-    //             }
-    //         } else {
-    //             if (turn === 'off') {
-    //                 isOn = false;
-    //             } else {
-    //                 isOn = true;
-    //             }
-    //         }
-    //         this.setState(
-    //             {isOn},
-    //             () => {
-    //                 Animated.timing(
-    //                     this.state.animatedValue,
-    //                     {
-    //                         toValue: isOn ? 1 : 0,
-    //                         duration: 0,
-    //                         easing: Easing.linear,
-    //                         delay: 0,
-    //                     },
-    //                 ).start();
-    //             },
-    //         );
-    //     }
-    // }
+    toggleAnimation(duration, status, turn) {
+        const {animatedValue} = this.state;
+        let isOn;
+        if (turn !== undefined) {
+            isOn = !turn;
+        } else {
+            isOn = !status;
+        }
+        Animated.timing(
+            animatedValue,
+            {
+                toValue: isOn ? 1 : 0,
+                duration: duration,
+                easing: Easing.linear,
+                delay: 0,
+            },
+        ).start();
+    }
 
     toggleButton() {
-        const {status, turn, device_id} = this.props.params;
-        let isOn;
-        if (turn === undefined) {
-            if (status === null) {
-                isOn = null;
-            } else {
-                if (status === true) {
-                    isOn = false;
-                } else {
-                    isOn = true;
-                }
-            }
-        } else {
-            if (turn === 'on') {
-                isOn = false;
-            } else {
-                isOn = true;
-            }
-        }
-        this.setState({onAction: true, isOn});
+        const {device_id, status, turn} = this.props.params;
+
+        this.setState({onAction: true});
+        this.toggleAnimation(5000, status, turn);
+
         setTimeout(() => {
-            this.props.toggleButton(device_id).then(res => {
+            this.props.toggleButton(device_id).then((res) => {
                 this.setState({onAction: res});
             });
         }, 3500);
     }
 
     render() {
-        const {onAction, animatedValue, isOn} = this.state;
+        const {onAction, animatedValue} = this.state;
         const {status, turn, name} = this.props.params;
         let color;
         let buttonText;
         let tapText;
         let fontSize;
-
-        Animated.timing(
-            animatedValue,
-            {
-                toValue: isOn ? 1 : 0,
-                duration: 5000,
-                easing: Easing.linear,
-                delay: 0,
-            },
-        ).start();
-
         if (status === null) {
             color = 'grey';
             buttonText = 'Disabled';
             tapText = '';
             fontSize = 30;
-        } else if (turn === 'on') {
+        } else if (turn === true) {
             fontSize = 40;
             color = '#b0c24a';
             buttonText = 'close';
             tapText = '(Tap To Close)';
-        } else if (turn === 'off') {
+        } else if (turn === false) {
             fontSize = 40;
             color = '#b70b0b';
             buttonText = 'open';
@@ -222,9 +106,9 @@ export default class Button extends Component {
                 statusText = 'Opening...';
             }
         } else {
-            if (onAction === true && turn === 'on') {
+            if (onAction === true && turn === true) {
                 statusText = 'Closing...';
-            } else if (onAction === true && turn === 'off') {
+            } else if (onAction === true && turn === false) {
                 statusText = 'Opening...';
             }
         }

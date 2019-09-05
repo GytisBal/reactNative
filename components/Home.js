@@ -73,12 +73,12 @@ export default class Home extends Component {
             });
     };
 
+
     async toggleButton(device_id) {
         return getToken()
             .then(token => {
                 return toggle(token, device_id)
                     .then(res => {
-
                         this.setState({devices: [...res.data.devices]});
                         return res.data.accessToken;
                     }).then(res => {
@@ -106,9 +106,13 @@ export default class Home extends Component {
         if (this.state.devices.length <= 0) {
             button = <Text style={styles.header}>You dont have devices</Text>;
         } else {
-            button = this.state.devices.map(item => {
+            button = this.state.devices.map(device => {
                 return (
-                    <Button key={item.id} params={item} toggleButton={this.toggleButton}/>
+                    <Button key={device.id}
+                            params={device}
+                            refreshing={this.state.refreshing}
+                            toggleButton={this.toggleButton}
+                    />
                 );
             });
         }
