@@ -4,7 +4,6 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import Config from 'react-native-config';
-import {storeToken} from './AsyncStorage';
 import {
     Text,
     TextInput,
@@ -45,7 +44,6 @@ export default class Login extends Component {
                 if (res.data.message) {
                     this.setState({message: res.data.message});
                 } else {
-                    storeToken(res.data.accessToken);
                     this.props.onLoginPress();
                 }
             }).catch(res => {

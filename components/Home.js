@@ -1,10 +1,9 @@
 import React, {Component} from 'react';
 import {toggle, status} from './Api';
-import {toggle2, status2} from './Api2';
 import Button from './Button';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
-import {storeToken, getToken, removeToken} from './AsyncStorage';
+import {removeToken} from './AsyncStorage';
 import {
     Text,
     View,
@@ -29,7 +28,7 @@ export default class Home extends Component {
 
     componentDidMount() {
         this.setState({isLoading: true});
-        status2().then(res=>{
+        status().then(res => {
             this.setState({devices: [...res.data.devices]});
         }).catch(res => {
             if (res) {
@@ -40,31 +39,11 @@ export default class Home extends Component {
         setTimeout(() => {
             this.setState({isLoading: false});
         }, 3000);
-
-        // getToken()
-        //     .then(token => {
-        //         status(token)
-        //             .then(res => {
-        //                 removeToken();
-        //                 storeToken(res.data.accessToken);
-        //                 this.setState({devices: [...res.data.devices]});
-        //             })
-        //             .catch(res => {
-        //                 if (res) {
-        //                     console.log(res);
-        //                     removeToken();
-        //                     this.props.onLogoutPress();
-        //                 }
-        //             });
-        //         setTimeout(() => {
-        //             this.setState({isLoading: false});
-        //         }, 3000);
-        //     });
     }
 
     _onRefresh = () => {
         this.setState({refreshing: true});
-        status2().then(res=>{
+        status().then(res => {
             this.setState({devices: [...res.data.devices], refreshing: false});
         }).catch(res => {
             if (res) {
@@ -72,64 +51,18 @@ export default class Home extends Component {
                 this.props.onLogoutPress();
             }
         });
-        // status.then(res=>{
-        //     console.log(res)
-        //     this.setState({devices: [...res.data.devices], refreshing: false});
-        // }).catch(res => {
-        //     if (res) {
-        //         console.log(res);
-        //         this.props.onLogoutPress();
-        //     }
-        // });
-        // getToken()
-        //     .then(token => {
-        //         status(token)
-        //             .then(res => {
-        //                 removeToken();
-        //                 storeToken(res.data.accessToken);
-        //                 this.setState({devices: [...res.data.devices], refreshing: false});
-        //             })
-        //             .catch(res => {
-        //                 if (res) {
-        //                     console.log(res);
-        //                     removeToken();
-        //                     this.props.onLogoutPress();
-        //                 }
-        //             });
-        //     });
     };
 
     async toggleButton(device_id) {
-        return  toggle2(device_id).then(res=>{
-            console.log(res)
-                this.setState({devices: [...res.data.devices]});
-                return false;
-            }).catch(res => {
+        return toggle(device_id).then(res => {
+            this.setState({devices: [...res.data.devices]});
+            return false;
+        }).catch(res => {
             if (res) {
                 console.log(res);
-                removeToken();
                 this.props.onLogoutPress();
             }
         });
-
-        // return getToken()
-        //     .then(token => {
-        //         return toggle(token, device_id)
-        //             .then(res => {
-        //                 this.setState({devices: [...res.data.devices]});
-        //                 return res.data.accessToken;
-        //             }).then(res => {
-        //                 removeToken();
-        //                 storeToken(res);
-        //                 return false;
-        //             }).catch(res => {
-        //                 if (res) {
-        //                     console.log(res);
-        //                     removeToken();
-        //                     this.props.onLogoutPress();
-        //                 }
-        //             });
-        //     });
     }
 
     logout(e) {
