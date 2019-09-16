@@ -1,6 +1,7 @@
-import React, {Component} from 'react';
+import React, {useEffect, useState} from 'react';
+import PropTypes from 'prop-types';
 import {toggle, status} from './Api';
-import Button from './Button1';
+import Button from './Button';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
 import {removeToken} from './AsyncStorage';
@@ -14,111 +15,115 @@ import {
     RefreshControl,
 } from 'react-native';
 
-export default class Home extends Component {
-    constructor() {
-        super();
-        this.state = {
-            isLoading: false,
-            devices: [],
-            refreshing: false,
-        };
-        this.toggleButton = this.toggleButton.bind(this);
-        this.logout = this.logout.bind(this);
-    }
+const Home = props => {
+    const [isLoading, setIsLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [devices, setDevices] = useState([]);
 
-    componentDidMount() {
-        this.setState({isLoading: true});
-        status().then(res => {
-            this.setState({devices: [...res.data.devices]});
-        }).catch(res => {
-            if (res) {
-                console.log(res);
-                this.props.onLogoutPress();
-            }
-        });
+    useEffect(() => {
+        setIsLoading(true);
+        let unmounted = false;
+        if (!unmounted) {
+            status().then(res => {
+                setDevices([...res.data.devices]);
+            }).catch(res => {
+                if (res) {
+                    console.log(res);
+                    props.onLogoutPress();
+                }
+            });
+        }
         setTimeout(() => {
-            this.setState({isLoading: false});
+            setIsLoading(false);
         }, 3000);
-    }
+        return function () {
+            unmounted = true;
+        };
+    }, []);
 
-    _onRefresh = () => {
-        this.setState({refreshing: true});
+    const _onRefresh = () => {
+        setRefreshing(true);
         status().then(res => {
-            this.setState({devices: [...res.data.devices], refreshing: false});
+            setDevices([...res.data.devices]);
+            setRefreshing(false);
         }).catch(res => {
             if (res) {
                 console.log(res);
-                this.props.onLogoutPress();
+                props.onLogoutPress();
             }
         });
     };
 
-    async toggleButton(device_id) {
+    const toggleButton = async (device_id) => {
         return toggle(device_id).then(res => {
-            this.setState({devices: [...res.data.devices]});
+            setDevices([...res.data.devices]);
             return false;
         }).catch(res => {
             if (res) {
                 console.log(res);
-                this.props.onLogoutPress();
+                props.onLogoutPress();
             }
         });
-    }
+    };
 
-    logout(e) {
+    const logout = (e) => {
         e.preventDefault();
-        this.props.onLogoutPress();
+        props.onLogoutPress();
         removeToken();
-    }
+    };
 
-    render() {
-        let button;
-        if (this.state.devices.length <= 0) {
-            button = <Text style={styles.header}>You dont have devices</Text>;
-        } else {
-            button = this.state.devices.map(device => {
-                return (
-                    <Button key={device.id}
-                            params={device}
-                            refreshing={this.state.refreshing}
-                            toggleButton={this.toggleButton}
-                    />
-                );
-            });
-        }
-        if (this.state.isLoading === true) {
+    let button;
+    if (devices.length <= 0) {
+        button = <Text style={styles.header}>You dont have devices</Text>;
+    } else {
+        button = devices.map(device => {
             return (
-                <View style={styles.loadingPage}>
-                    <View style={styles.circle}>
-                        <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
-                    </View>
-                    <Text style={styles.loadingHeader}> Loading... </Text>
-                </View>
+                <Button key={device.id}
+                        params={device}
+                        refreshing={refreshing}
+                        toggleButton={toggleButton}
+                />
             );
-        } else {
-            return (
-                <View style={styles.wrapper}>
-                    <TouchableOpacity
-                        onPress={this.logout}
-                        style={styles.logoutButton}
-                    >
-                        <Text style={styles.logoutText}> Logout </Text>
-                    </TouchableOpacity>
-                    <ScrollView
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={this.state.refreshing}
-                                onRefresh={this._onRefresh}
-                            />
-                        }
-                    >
-                        {button}
-                    </ScrollView>
-                </View>
-            );
-        }
+        });
     }
-}
+    if (isLoading === true) {
+        return (
+            <View style={styles.loadingPage}>
+                <View style={styles.circle}>
+                    <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
+                </View>
+                <Text style={styles.loadingHeader}> Loading... </Text>
+            </View>
+        );
+    } else {
+        return (
+            <View style={styles.wrapper}>
+                <TouchableOpacity
+                    onPress={logout}
+                    style={styles.logoutButton}
+                >
+                    <Text style={styles.logoutText}> Logout </Text>
+                </TouchableOpacity>
+                <ScrollView
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={_onRefresh}
+                        />
+                    }
+                >
+                    {button}
+                </ScrollView>
+            </View>
+        );
+    }
+};
+
+Home.propTypes = {
+    onLogoutPress: PropTypes.func,
+};
+
+export default Home;
 
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height

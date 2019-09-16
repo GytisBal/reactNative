@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import {
     View,
     StyleSheet,
@@ -7,50 +8,41 @@ import {
     Text,
 } from 'react-native';
 
-
-export default class Animation extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-
-    }
-
-    render() {
-        const moveRight = this.props.animatedValue.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, 150],
-        });
-        const moveLeft = this.props.animatedValue.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0, -150],
-        });
-        return (
-            <View style={styles.container}>
-                <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
-                    transform: [{
-                        translateX: moveLeft,
-                    }],
-                },
-                ]}
-                >
-                    <Text style={[styles.gates_header, {textAlign: 'right'}]}>Open</Text>
-                </Animated.View>
-                <View style={styles.gates_content}>
-                    <Text style={styles.gates_content_text}> Welcome </Text>
-                </View>
-                <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
-                    transform: [{
-                        translateX: moveRight,
-                    }],
-                },
-                ]}
-                >
-                    <Text style={[styles.gates_header]}>Gates</Text>
-                </Animated.View>
+const Animation = props => {
+    const moveRight = props.animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 150],
+    });
+    const moveLeft = props.animatedValue.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, -150],
+    });
+    return (
+        <View style={styles.container}>
+            <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
+                transform: [{
+                    translateX: moveLeft}]}]}
+            >
+                <Text style={[styles.gates_header, {textAlign: 'right'}]}>Open</Text>
+            </Animated.View>
+            <View style={styles.gates_content}>
+                <Text style={styles.gates_content_text}> Welcome </Text>
             </View>
-        );
-    }
-}
+            <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
+                transform: [{
+                    translateX: moveRight}]}]}
+            >
+                <Text style={[styles.gates_header]}>Gates</Text>
+            </Animated.View>
+        </View>
+    );
+};
+
+Animation.propTypes = {
+animatedValue: PropTypes.object
+};
+
+export default Animation;
 
 // Later on in your styles..
 const width = Dimensions.get('window').width; //full width

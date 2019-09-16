@@ -23,7 +23,11 @@ function parseBody(response) {
     }
 }
 
+const CancelToken = axios.CancelToken;
+const source = CancelToken.source();
+
 let instance = axios.create({
+    cancelToken: source.token,
     baseURL: getBaseUrl(),
     responseType: 'json',
 });
@@ -72,6 +76,10 @@ export function login(user) {
     return postRequest(`login`, {email: user.email, password: user.password});
 }
 
+
+export function cancelToken() {
+    source.cancel('Operation canceled by the user.');
+}
 export function status() {
     return postRequest('statusRelay/', {id: 1});
 }
