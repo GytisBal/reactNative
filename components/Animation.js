@@ -16,7 +16,7 @@ export default class Animation extends Component {
     }
 
     render() {
-        const marginRight = this.props.animatedValue.interpolate({
+        const moveRight = this.props.animatedValue.interpolate({
             inputRange: [0, 1],
             outputRange: [0, 150],
         });
@@ -40,7 +40,7 @@ export default class Animation extends Component {
                 </View>
                 <Animated.View style={[styles.gates_panel, styles.gates_panel_left, {
                     transform: [{
-                        translateX: marginRight,
+                        translateX: moveRight,
                     }],
                 },
                 ]}

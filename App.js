@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Login from './components/LoginForm';
-import Home from './components/Home';
+import Home from './components/Home1';
 
 export default class App extends Component {
     state = {

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {toggle, status} from './Api';
-import Button from './Button';
+import Button from './Button1';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
 import {removeToken} from './AsyncStorage';

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Animation from './Animation';
+import Animation from './Animation1';
 
 import {
     Text,
