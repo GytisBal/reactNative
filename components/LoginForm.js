@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {useState} from 'react';
 import {login} from './Api';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faParking} from '@fortawesome/free-solid-svg-icons';
@@ -13,24 +13,18 @@ import {
     Dimensions,
 } from 'react-native';
 
-export default class Login extends Component {
-    constructor() {
-        super();
-        this.state = {
-            email: '',
-            password: '',
-            message: '',
-        };
-        this.onSubmit = this.onSubmit.bind(this);
-    }
+const LoginForm = (props) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
 
-    onSubmit(e) {
+    const onSubmit = (e) => {
         e.preventDefault();
         let user;
         if (Config.IS_PRODUCTION === 'true') {
             user = {
-                email: this.state.email,
-                password: this.state.password,
+                email: email,
+                password: password,
             };
         } else {
             user = {
@@ -38,69 +32,66 @@ export default class Login extends Component {
                 password: 'VOU5W4Gv',
             };
         }
-
         login(user)
             .then(res => {
                 if (res.data.message) {
-                    this.setState({message: res.data.message});
+                    setMessage(res.data.message);
                 } else {
-                    this.props.onLoginPress();
+                    props.onLoginPress();
                 }
             }).catch(res => {
-            this.setState({message: res.response.data.message});
+            setMessage(res.response.data.message);
         });
-    }
-
-    render() {
-        return (
-            <KeyboardAwareScrollView
-                style={{backgroundColor: 'white'}}
-                resetScrollToCoords={{x: 0, y: 0}}
-                scrollEnabled={false}
+    };
+    return (
+        <KeyboardAwareScrollView
+            style={{backgroundColor: 'white'}}
+            resetScrollToCoords={{x: 0, y: 0}}
+            scrollEnabled={false}
+        >
+            <View style={styles.containerTop}>
+                <View style={styles.circle}>
+                    <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
+                </View>
+            </View>
+            <View
+                style={styles.containerBottom}
             >
-                <View style={styles.containerTop}>
-                    <View style={styles.circle}>
-                        <FontAwesomeIcon style={styles.parking} size={50} icon={faParking}/>
-                    </View>
-                </View>
-                <View
-                    style={styles.containerBottom}
-                >
-                    <Text
-                        style={styles.loginHeading}>
-                        Login
-                    </Text>
-                    <Text
-                        style={styles.message}>
-                        {this.state.message}
-                    </Text>
-                    <TextInput
-                        style={styles.emailStyle}
-                        placeholder='Email'
-                        placeholderTextColor="blue"
-                        name="email"
-                        value={this.state.email}
-                        onChangeText={(email) => this.setState({email})}
-                    />
-                    <TextInput
-                        style={styles.passwordStyle}
-                        placeholder='Password'
-                        placeholderTextColor="blue"
-                        name="password"
-                        value={this.state.password}
-                        onChangeText={(password) => this.setState({password})}
-                    />
-                    <TouchableOpacity
-                        style={styles.loginButton}
-                        onPress={this.onSubmit}>
-                        <Text style={styles.loginButtonText}>Sign in</Text>
-                    </TouchableOpacity>
-                </View>
-            </KeyboardAwareScrollView>
-        );
-    }
-}
+                <Text
+                    style={styles.loginHeading}>
+                    Login
+                </Text>
+                <Text
+                    style={styles.message}>
+                    {message}
+                </Text>
+                <TextInput
+                    style={styles.emailStyle}
+                    placeholder='Email'
+                    placeholderTextColor="blue"
+                    name="email"
+                    value={email}
+                    onChangeText={email => setEmail(email)}
+                />
+                <TextInput
+                    style={styles.passwordStyle}
+                    placeholder='Password'
+                    placeholderTextColor="blue"
+                    name="password"
+                    value={password}
+                    onChangeText={password => setPassword(password)}
+                />
+                <TouchableOpacity
+                    style={styles.loginButton}
+                    onPress={onSubmit}>
+                    <Text style={styles.loginButtonText}>Sign in</Text>
+                </TouchableOpacity>
+            </View>
+        </KeyboardAwareScrollView>
+    );
+};
 
+export default LoginForm;
 const width = Dimensions.get('window').width; //full width
 const height = Dimensions.get('window').height; //full height
 const styles = StyleSheet.create({

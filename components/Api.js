@@ -34,6 +34,7 @@ let instance = axios.create({
 
 instance.interceptors.request.use(function (config) {
     return getToken().then(token => {
+        console.log(token)
         config.headers =
             {
                 'Accept': 'application/json',
