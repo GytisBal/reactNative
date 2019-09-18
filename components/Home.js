@@ -29,13 +29,13 @@ const Home = props => {
             }).catch(res => {
                 if (res) {
                     console.log(res);
-                    props.onLogoutPress();
+            props.onLogoutPress();
                 }
             });
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 3000);
         }
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 3000);
         return function () {
             unmounted = true;
         };
